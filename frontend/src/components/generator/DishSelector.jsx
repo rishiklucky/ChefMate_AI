@@ -22,8 +22,8 @@ export default function DishSelector({ onDishSelected }) {
     <div className="w-100 card-chefmate p-4 p-sm-4.5 p-md-5 rounded-4 shadow-sm">
       <div className="text-start mb-3.5">
         <label className="font-display fw-bold fs-6 fs-sm-5 text-dark mb-1.5 d-flex align-items-center gap-2">
-          <UtensilsIcon size={22} className="text-danger flex-shrink-0" />
-          <span>STEP 1 — What would you like to cook today?</span>
+          <UtensilsIcon size={22} className="text-danger flex-shrink-0 pr-2" />
+          <span> STEP 1 — What would you like to cook today?</span>
         </label>
         <br></br>
         <p className="text-muted text-xs text-sm-sm m-0 leading-relaxed">

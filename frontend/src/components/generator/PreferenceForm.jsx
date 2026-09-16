@@ -33,7 +33,7 @@ export default function PreferenceForm() {
         <div className="p-2 rounded-3 text-white d-flex align-items-center justify-content-center shadow-xs flex-shrink-0" style={{ background: 'linear-gradient(135deg, #ea580c, #c2410c)' }}>
           <Sliders size={20} />
         </div>
-        <h5 className="font-display fw-bold text-dark fs-6 fs-sm-5 m-0">STEP 2 — Cooking Preferences & Setup</h5>
+        <h5 className="font-display fw-bold text-dark fs-6 fs-sm-5 m-0 p-2"> STEP 2 — Cooking Preferences & Setup</h5>
       </div>
 
       <div className="row g-4">
@@ -52,8 +52,8 @@ export default function PreferenceForm() {
                   key={num}
                   type="button"
                   className={`btn font-label fw-semibold rounded-3 px-3.5 py-2 text-xs text-sm-sm flex-fill flex-sm-grow-0 transition-all ${isSelected
-                      ? 'btn-primary-chef text-white shadow-xs'
-                      : 'text-dark bg-white'
+                    ? 'btn-primary-chef text-white shadow-xs'
+                    : 'text-dark bg-white'
                     }`}
                   style={{
                     border: isSelected ? '2px solid #ea580c' : '1.5px solid #e2e8f0',

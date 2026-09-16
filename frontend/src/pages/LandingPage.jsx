@@ -76,10 +76,10 @@ export default function LandingPage() {
             {/* Quick Feature Badges */}
             <div className="d-flex flex-wrap align-items-center gap-2 gap-sm-3 text-xs text-muted mb-4">
               <span className="d-inline-flex align-items-center gap-1.5 fw-semibold text-dark bg-white px-2.5 px-sm-3 py-1.5 rounded-pill shadow-xs border">
-                <CheckCircle size={15} className="text-success flex-shrink-0" /> &nbsp;Indian & Metric Units (g, ml, cups)
+                <CheckCircle size={15} className="text-success flex-shrink-0" /> &nbsp;Indian & Metric Units (g, ml, cups) &nbsp;
               </span>
               <span className="d-inline-flex align-items-center gap-1.5 fw-semibold text-dark bg-white px-2.5 px-sm-3 py-1.5 rounded-pill shadow-xs border">
-                <CheckCircle size={15} className="text-success flex-shrink-0" /> &nbsp;Gas, Induction, Oven & Air Fryer
+                <CheckCircle size={15} className="text-success flex-shrink-0" /> &nbsp;Gas, Induction, Oven & Air Fryer &nbsp;
               </span>
             </div>
           </div>
@@ -166,7 +166,7 @@ export default function LandingPage() {
                 <Users size={24} />
               </div>
               <h5 className="font-display fw-bold text-dark">2. Set Preferences</h5>
-              <p className="text-sm text-muted mb-0">Specify servings (1-10+), spice level, and your specific appliance.</p>
+              <p className="text-sm text-muted mb-0">Specify servings, spice level, and your specific appliance.</p>
             </div>
           </div>
 

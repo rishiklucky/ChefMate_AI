@@ -1,5 +1,5 @@
 import React from 'react';
-import { Plus, Trash2, AlertCircle, Sparkles, ChefHat, RefreshCw } from 'lucide-react';
+import { Plus, Trash2, AlertCircle, Sparkles, ChefHat, RefreshCw, ChevronRight } from 'lucide-react';
 import { useRecipe } from '../../context/RecipeContext';
 
 export default function IngredientCustomizer({ onGenerateClick }) {
@@ -46,7 +46,7 @@ export default function IngredientCustomizer({ onGenerateClick }) {
           <ChefHat size={20} />
         </div>
         <div>
-          <h5 className="font-display fw-bold text-dark fs-6 fs-sm-5 m-0">STEP 3 — Ingredient Customization</h5>
+          <h5 className="font-display fw-bold text-dark fs-6 fs-sm-5 m-0 p-2">STEP 3 — Ingredient Customization</h5>
           <p className="text-muted text-xs text-sm-sm mb-0 mt-1 leading-relaxed">
             Review and adjust quantities, add special additions, or remove ingredients you don't have.
           </p>
@@ -62,7 +62,7 @@ export default function IngredientCustomizer({ onGenerateClick }) {
           onClick={() => fetchPreliminaryIngredients()}
           disabled={isGeneratingIngredients}
         >
-          <RefreshCw size={14} className={isGeneratingIngredients ? 'animate-spin text-danger' : 'text-danger'} />
+          <RefreshCw size={14} className={isGeneratingIngredients ? 'animate-spin' : ''} style={{ color: '#ea580c' }} />
           <span>Re-generate Draft</span>
         </button>
       </div>
@@ -82,7 +82,7 @@ export default function IngredientCustomizer({ onGenerateClick }) {
       {/* Loading state for ingredients */}
       {isGeneratingIngredients ? (
         <div className="text-center py-5">
-          <div className="spinner-border text-danger" role="status">
+          <div className="spinner-border" style={{ color: '#ea580c' }} role="status">
             <span className="visually-hidden">Loading ingredients...</span>
           </div>
           <p className="text-muted text-sm mt-3">Fetching preliminary ingredients from AI chef...</p>
@@ -164,95 +164,122 @@ export default function IngredientCustomizer({ onGenerateClick }) {
             </table>
           </div>
 
-          {/* Mobile Ingredient List Cards (sm and down) */}
-          <div className="d-block d-md-none mb-4">
-            <div className="d-flex flex-column gap-3">
-              {preliminaryIngredients.map((item, index) => (
+          {/* Mobile Ingredient List Cards Slider (sm and down) */}
+          <div className="d-block d-md-none mb-3">
+            {preliminaryIngredients.length > 0 ? (
+              <>
                 <div
-                  key={item.id}
-                  className="p-3 rounded-4 border bg-white shadow-xs position-relative"
-                  style={{ borderColor: 'rgba(234, 88, 12, 0.18)' }}
+                  className="d-flex flex-row flex-nowrap overflow-x-auto pb-3 px-1 no-scrollbar"
+                  style={{
+                    gap: '1.25rem',
+                    scrollSnapType: 'x mandatory',
+                    WebkitOverflowScrolling: 'touch',
+                  }}
                 >
-                  <div className="d-flex align-items-center justify-content-between gap-2 mb-2">
-                    <span className="badge bg-light text-dark border text-xs font-label">#{index + 1}</span>
-                    <button
-                      type="button"
-                      className="btn btn-sm btn-outline-danger p-1.5 rounded-circle d-inline-flex align-items-center justify-content-center"
-                      title="Remove ingredient"
-                      style={{ width: 32, height: 32 }}
-                      onClick={() => removeIngredient(item.id)}
+                  {preliminaryIngredients.map((item, index) => (
+                    <div
+                      key={item.id}
+                      className="p-3 rounded-4 border bg-white shadow-xs position-relative flex-shrink-0"
+                      style={{
+                        flex: '0 0 84%',
+                        maxWidth: '310px',
+                        scrollSnapAlign: 'start',
+                        borderColor: 'rgba(234, 88, 12, 0.18)',
+                        boxShadow: '0 4px 16px rgba(28, 25, 23, 0.04)',
+                      }}
                     >
-                      <Trash2 size={15} />
-                    </button>
-                  </div>
+                      {/* Top Header inside Card */}
+                      <div className="d-flex align-items-center justify-content-between gap-2 mb-2">
+                        <span className="badge bg-light text-dark border text-xs font-label px-2 py-1 rounded-3 fw-bold">
+                          #{index + 1}
+                        </span>
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-outline-danger p-1 rounded-circle d-inline-flex align-items-center justify-content-center transition-all"
+                          title="Remove ingredient"
+                          style={{ width: 30, height: 30 }}
+                          onClick={() => removeIngredient(item.id)}
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
 
-                  <div className="mb-2">
-                    <label className="form-label text-xs fw-bold text-muted mb-1">Ingredient Name</label>
-                    <input
-                      type="text"
-                      className="form-control font-label fw-semibold form-control-chef"
-                      placeholder="e.g. Basmati Rice"
-                      value={item.name}
-                      onChange={(e) => updateIngredient(item.id, 'name', e.target.value)}
-                    />
-                  </div>
+                      {/* Ingredient Name */}
+                      <div className="mb-2">
+                        <label className="form-label text-xs fw-bold text-muted mb-1">Ingredient Name</label>
+                        <input
+                          type="text"
+                          className="form-control font-label fw-semibold form-control-chef py-1.5 px-2.5 text-xs text-sm-sm"
+                          placeholder="e.g. Basmati Rice"
+                          value={item.name}
+                          onChange={(e) => updateIngredient(item.id, 'name', e.target.value)}
+                        />
+                      </div>
 
-                  <div className="row g-2 mb-2">
-                    <div className="col-6">
-                      <label className="form-label text-xs fw-bold text-muted mb-1">Quantity</label>
-                      <input
-                        type="text"
-                        className="form-control form-control-chef text-center"
-                        placeholder="2"
-                        value={item.quantity}
-                        onChange={(e) => updateIngredient(item.id, 'quantity', e.target.value)}
-                      />
+                      {/* Quantity & Unit Row */}
+                      <div className="row g-2 mb-2">
+                        <div className="col-6">
+                          <label className="form-label text-xs fw-bold text-muted mb-1">Quantity</label>
+                          <input
+                            type="text"
+                            className="form-control form-control-chef text-center py-1.5 px-2 text-xs text-sm-sm"
+                            placeholder="2"
+                            value={item.quantity}
+                            onChange={(e) => updateIngredient(item.id, 'quantity', e.target.value)}
+                          />
+                        </div>
+                        <div className="col-6">
+                          <label className="form-label text-xs fw-bold text-muted mb-1">Unit</label>
+                          <input
+                            type="text"
+                            className="form-control form-control-chef py-1.5 px-2.5 text-xs text-sm-sm"
+                            placeholder="cups, g, tbsp"
+                            value={item.unit}
+                            onChange={(e) => updateIngredient(item.id, 'unit', e.target.value)}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Note (Optional) */}
+                      <div>
+                        <label className="form-label text-xs fw-bold text-muted mb-1">Note (Optional)</label>
+                        <input
+                          type="text"
+                          className="form-control form-control-chef text-muted text-xs py-1.5 px-2.5"
+                          placeholder="soaked, chopped, to taste"
+                          value={item.note}
+                          onChange={(e) => updateIngredient(item.id, 'note', e.target.value)}
+                        />
+                      </div>
                     </div>
-                    <div className="col-6">
-                      <label className="form-label text-xs fw-bold text-muted mb-1">Unit</label>
-                      <input
-                        type="text"
-                        className="form-control form-control-chef"
-                        placeholder="cups, g, tbsp"
-                        value={item.unit}
-                        onChange={(e) => updateIngredient(item.id, 'unit', e.target.value)}
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="form-label text-xs fw-bold text-muted mb-1">Note (Optional)</label>
-                    <input
-                      type="text"
-                      className="form-control form-control-chef text-muted text-xs"
-                      placeholder="soaked, chopped, to taste"
-                      value={item.note}
-                      onChange={(e) => updateIngredient(item.id, 'note', e.target.value)}
-                    />
-                  </div>
+                  ))}
                 </div>
-              ))}
 
-              {preliminaryIngredients.length === 0 && (
-                <div className="p-4 text-center text-muted border rounded-4 bg-light text-sm">
-                  No ingredients in list. Click "+ Add Ingredient" below to add custom items.
+                {/* Slide indicator message below cards */}
+                <div className="text-center text-xs text-muted fw-semibold mt-2.5 mb-3.5 d-flex align-items-center justify-content-center gap-1.5">
+                  <span>Slide to view all ingredients</span>
+                  <ChevronRight size={14} className="text-danger" />
                 </div>
-              )}
-            </div>
+              </>
+            ) : (
+              <div className="p-4 text-center text-muted border rounded-4 bg-light text-sm mb-3">
+                No ingredients in list. Click "+ Add Ingredient" below to add custom items.
+              </div>
+            )}
           </div>
 
           {/* Add Ingredient Button */}
-          <div className="d-flex align-items-center justify-content-between mb-4">
+          <div className="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4">
             <button
               type="button"
-              className="btn btn-outline-chefmate btn-sm rounded-pill px-4 py-2 font-label fw-semibold d-inline-flex align-items-center gap-1.5 shadow-xs"
+              className="btn btn-outline-chefmate btn-sm rounded-pill px-3.5 py-2 font-label fw-semibold d-inline-flex align-items-center gap-1.5 shadow-xs text-nowrap"
               onClick={addIngredient}
             >
               <Plus size={16} />
               <span>Add Ingredient</span>
             </button>
 
-            <span className="text-xs text-muted">
+            <span className="text-xs text-muted text-nowrap">
               Total ingredients: <strong>{preliminaryIngredients.length}</strong>
             </span>
           </div>

@@ -77,6 +77,15 @@ h1, h2, h3, h4, h5, h6, .font-display {
   background: var(--primary-orange);
 }
 
+/* Hide scrollbar for clean horizontal mobile sliders */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 /* Glassmorphism Navbar */
 .navbar-chefmate {
   background-color: rgba(255, 249, 246, 0.88) !important;
