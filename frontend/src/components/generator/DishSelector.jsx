@@ -19,40 +19,46 @@ export default function DishSelector({ onDishSelected }) {
   };
 
   return (
-    <div className="w-100">
-      <div className="text-start mb-3">
-        <label className="font-display fw-bold fs-5 text-dark mb-1 d-flex align-items-center gap-2">
-          <UtensilsIcon size={22} className="text-danger" />
+    <div className="w-100 card-chefmate p-4 p-sm-4.5 p-md-5 rounded-4 shadow-sm">
+      <div className="text-start mb-3.5">
+        <label className="font-display fw-bold fs-6 fs-sm-5 text-dark mb-1.5 d-flex align-items-center gap-2">
+          <UtensilsIcon size={22} className="text-danger flex-shrink-0" />
           <span>STEP 1 — What would you like to cook today?</span>
         </label>
-        <p className="text-muted text-sm m-0">
+        <br></br>
+        <p className="text-muted text-xs text-sm-sm m-0 leading-relaxed">
           Enter any dish name, cuisine, or specific craving. Our AI will handle the ingredients and recipe logic.
         </p>
+        <br></br>
       </div>
 
       {/* Prominent Full-Width Input Engine */}
       <div
-        className="card-chefmate p-2 p-sm-3 rounded-4 shadow-md d-flex align-items-center gap-3 mb-3 w-100"
-        style={{ border: '1px solid rgba(234, 88, 12, 0.25)' }}
+        className="p-3 p-sm-3.5 rounded-4 shadow-xs bg-white d-flex align-items-center gap-3 mb-3.5 w-100 border"
+        style={{ borderColor: 'rgba(234, 88, 12, 0.3)' }}
       >
-        <Search size={22} className="text-danger flex-shrink-0 ms-2" />
+        <Search size={22} className="text-danger flex-shrink-0 ms-1" />
         <input
           type="text"
-          className="form-control border-0 bg-transparent fs-5 text-dark focus-ring-none py-2 w-100"
-          placeholder="e.g. Chicken Biryani, Creamy Alfredo Pasta..."
+          className="form-control border-0 bg-transparent fs-6 fs-sm-5 text-dark focus-ring-none p-0 w-100"
+          placeholder="e.g. Biryani, Butter Masala, Pasta, Dosa..."
           value={dishName}
           onChange={(e) => setDishName(e.target.value)}
         />
+
       </div>
 
       {/* Popular Suggestions */}
       <div className="d-flex flex-wrap align-items-center gap-2">
-        <span className="text-xs fw-bold text-uppercase tracking-wider text-muted me-1">Popular Suggestions:</span>
+        <br></br>
+        <span className="text-xs fw-bold text-uppercase tracking-wider text-muted me-1 w-100 w-sm-auto mb-1 mb-sm-0">
+          Popular Suggestions:
+        </span>
         {POPULAR_DISHES.map((dish) => (
           <button
             key={dish}
             type="button"
-            className={`btn btn-sm rounded-pill px-3.5 py-1.5 text-xs font-label fw-semibold transition-all ${dishName === dish
+            className={`btn btn-sm rounded-pill px-3 py-1.5 text-xs font-label fw-semibold transition-all ${dishName === dish
               ? 'btn-primary-chef text-white shadow-xs'
               : 'bg-white text-secondary border hover-bg-light'
               }`}

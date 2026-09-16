@@ -118,8 +118,23 @@ h1, h2, h3, h4, h5, h6, .font-display {
 }
 .btn-secondary-chef:hover {
   background-color: var(--surface-container-low);
-  border-color: rgba(234, 88, 12, 0.4);
+  border-color: var(--primary-orange);
   color: var(--primary-orange);
+}
+
+.btn-outline-chefmate {
+  color: var(--primary-orange);
+  border: 1.5px solid var(--primary-orange);
+  background-color: transparent;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.btn-outline-chefmate:hover,
+.btn-outline-chefmate:active,
+.btn-outline-chefmate:focus {
+  color: #ffffff !important;
+  background: var(--primary-gradient) !important;
+  border-color: var(--primary-orange) !important;
+  box-shadow: 0 6px 18px rgba(234, 88, 12, 0.28);
   transform: translateY(-1px);
 }
 
@@ -229,14 +244,30 @@ h1, h2, h3, h4, h5, h6, .font-display {
 
 @media (max-width: 767.98px) {
   .hero-title {
-    font-size: 2.35rem !important;
+    font-size: 2.2rem !important;
     line-height: 1.2 !important;
   }
   .ingredient-row {
     flex-direction: column;
   }
   .container {
-    padding-left: 1.25rem !important;
-    padding-right: 1.25rem !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+  .btn, .form-control {
+    min-height: 40px;
+  }
+  .card-chefmate {
+    border-radius: 1.25rem !important;
+  }
+}
+
+\.p-3\.5 {
+  padding: 1rem !important;
+}
+
+@media (min-width: 576px) {
+  \.p-3\.5 {
+    padding: 1.25rem !important;
   }
 }
