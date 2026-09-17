@@ -110,7 +110,7 @@ export default function PreferenceForm() {
               return (
                 <div
                   key={sp.level}
-                  className={`p-3 rounded-4 d-flex align-items-center justify-content-between gap-2 cursor-pointer transition-all`}
+                  className={`preference-card-option p-3 rounded-4 d-flex align-items-center justify-content-between gap-2 cursor-pointer transition-all ${isSelected ? 'selected' : ''}`}
                   style={{
                     backgroundColor: isSelected ? 'rgba(234, 88, 12, 0.08)' : '#ffffff',
                     border: isSelected ? '2px solid #ea580c' : '1.5px solid #e2e8f0',
@@ -162,7 +162,9 @@ export default function PreferenceForm() {
               return (
                 <div key={method.name} className="col-6">
                   <div
-                    className={`py-3.5 px-3 rounded-4 text-center cursor-pointer transition-all h-100 d-flex flex-column align-items-center justify-content-center`}
+                    className={`preference-card-option py-3 px-2 px-sm-3 rounded-4 text-center cursor-pointer transition-all h-100 d-flex flex-column align-items-center justify-content-between ${
+                      isSelected ? 'selected' : ''
+                    }`}
                     style={{
                       backgroundColor: isSelected ? 'rgba(234, 88, 12, 0.08)' : '#ffffff',
                       border: isSelected ? '2px solid #ea580c' : '1.5px solid #e2e8f0',
@@ -170,9 +172,18 @@ export default function PreferenceForm() {
                     }}
                     onClick={() => setCookingMethod(method.name)}
                   >
-                    <IconComp size={22} className={isSelected ? 'text-danger mb-1.5' : 'text-secondary mb-1.5'} />
-                    <div className="fw-bold text-dark text-xs text-sm-sm">{method.name}</div>
-                    <div className="text-muted text-xs mt-1 d-none d-sm-block">{method.desc}</div>
+                    <div className="d-flex flex-column align-items-center justify-content-center w-100 flex-grow-1 pt-1">
+                      <div className="d-flex align-items-center justify-content-center mb-1.5" style={{ height: '26px' }}>
+                        <IconComp size={22} className={isSelected ? 'text-danger' : 'text-secondary'} />
+                      </div>
+                      <div className="fw-bold text-dark text-xs text-sm-sm">{method.name}</div>
+                    </div>
+                    <div
+                      className="text-muted text-xs mt-1.5 d-none d-sm-flex align-items-center justify-content-center text-center w-100"
+                      style={{ minHeight: '2.4rem', fontSize: '0.73rem', lineHeight: '1.25' }}
+                    >
+                      {method.desc}
+                    </div>
                   </div>
                 </div>
               );

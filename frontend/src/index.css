@@ -280,3 +280,24 @@ h1, h2, h3, h4, h5, h6, .font-display {
     padding: 1.25rem !important;
   }
 }
+
+/* Preference Cards Micro-interactions */
+.preference-card-option {
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+}
+.preference-card-option:hover:not(.selected) {
+  border-color: rgba(234, 88, 12, 0.4) !important;
+  background-color: rgba(234, 88, 12, 0.03) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(28, 25, 23, 0.06) !important;
+}
+.preference-card-option:active {
+  transform: translateY(0);
+}
+
+@media (max-width: 767.98px) {
+  .border-top-mobile {
+    border-top: 1px solid rgba(255, 255, 255, 0.12) !important;
+  }
+}

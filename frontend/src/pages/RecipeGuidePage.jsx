@@ -4,8 +4,7 @@ import { useRecipe } from '../context/RecipeContext';
 import API from '../services/api';
 import RecipeHeader from '../components/cooking/RecipeHeader';
 import IngredientChecklist from '../components/cooking/IngredientChecklist';
-import CookingTimeline from '../components/cooking/CookingTimeline';
-import StepCard from '../components/cooking/StepCard';
+import SequentialInstructions from '../components/cooking/SequentialInstructions';
 import KitchenModeModal from '../components/cooking/KitchenModeModal';
 import TipsSection from '../components/cooking/TipsSection';
 import { ChefHat, ArrowLeft } from 'lucide-react';
@@ -79,45 +78,28 @@ export default function RecipeGuidePage() {
   return (
     <div className="w-100 min-vh-100 pt-4 pb-5">
       <div className="container px-3 px-lg-5">
-        
+
         {/* Back Link */}
         <button
           className="btn btn-sm btn-link text-muted text-decoration-none d-inline-flex align-items-center gap-1 mb-3 hover-danger"
           onClick={() => navigate('/')}
         >
           <ArrowLeft size={16} />
-          <span>Back to Recipe Studio</span>
+          <span>Back to Explore</span>
         </button>
 
         {/* Master Recipe Header */}
         <RecipeHeader recipe={recipe} onOpenKitchenMode={() => setIsKitchenModeOpen(true)} />
 
-        <div className="row g-4">
-          {/* Left Column: Ingredients Checklist & Timeline */}
-          <div className="col-lg-4">
-            <IngredientChecklist ingredients={recipe.ingredients} />
-            <CookingTimeline />
-          </div>
+        {/* Required Ingredients Section (Single-Height Slidable Row on Tab/PC, 4-Item Paginated Carousel on Mobile) */}
+        <IngredientChecklist ingredients={recipe.ingredients} />
 
-          {/* Right Column: Sequential Step Cards */}
-          <div className="col-lg-8">
-            <div className="d-flex align-items-center justify-content-between mb-3">
-              <h5 className="font-display fw-bold text-dark m-0">Sequential Instructions</h5>
-              <span className="text-xs text-muted">
-                {Object.values(completedSteps).filter(Boolean).length} of {recipe.steps?.length || 0} Steps Complete
-              </span>
-            </div>
-
-            {recipe.steps && recipe.steps.map((step) => (
-              <StepCard
-                key={step.stepNumber}
-                step={step}
-                isCompleted={!!completedSteps[step.stepNumber]}
-                onToggleComplete={() => toggleStepComplete(step.stepNumber)}
-              />
-            ))}
-          </div>
-        </div>
+        {/* Sequential Instructions Section (Slidable 1 Card at a Time Concept) */}
+        <SequentialInstructions
+          steps={recipe.steps}
+          completedSteps={completedSteps}
+          toggleStepComplete={toggleStepComplete}
+        />
 
         {/* Tips, Common Mistakes & Nutrition */}
         <TipsSection recipe={recipe} />

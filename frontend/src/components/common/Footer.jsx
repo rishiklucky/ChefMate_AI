@@ -49,7 +49,7 @@ export default function Footer() {
           >
             &nbsp; <Code2 size={14} className="text-orange-400" />
             <span style={{ letterSpacing: '0.05em' }}>
-              Developed by <strong className="text-white fw-semibold ms-0.5"> Rishik Nallagulla &nbsp;</strong>
+              Developed by <strong className="text-white fw-semibold ms-0.5"><a href="https://rishiknallagulla.onrender.com" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit' }}>Rishik Nallagulla</a></strong>
             </span>
           </div>
 

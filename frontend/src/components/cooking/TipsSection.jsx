@@ -7,7 +7,7 @@ export default function TipsSection({ recipe }) {
   const { tips = [], commonMistakes = [], servingSuggestion, storageInstructions, nutritionNote, warnings = [] } = recipe;
 
   return (
-    <div className="mt-5">
+    <div className="mt-3">
       {/* Warnings alert if any essential item was omitted */}
       {warnings && warnings.length > 0 && (
         <div className="alert border p-4 rounded-4 shadow-sm mb-4" style={{ backgroundColor: 'rgba(245, 158, 11, 0.1)', borderColor: 'rgba(245, 158, 11, 0.3)' }}>

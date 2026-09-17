@@ -9,10 +9,56 @@ export default function RecipeHeader({ recipe, onOpenKitchenMode }) {
 
   if (!recipe) return null;
 
-  const handleShare = () => {
-    navigator.clipboard.writeText(window.location.href);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const handleShare = async () => {
+    const shareData = {
+      title: recipe.dishName ? `${recipe.dishName} — ChefMate AI` : 'ChefMate AI Recipe',
+      text: `Check out this recipe for ${recipe.dishName || 'a delicious dish'} on ChefMate AI!`,
+      url: window.location.href,
+    };
+
+    // 1. Try Native Mobile Web Share API
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+        return;
+      } catch (err) {
+        if (err.name === 'AbortError') return;
+      }
+    }
+
+    // 2. Try Modern Clipboard API
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      try {
+        await navigator.clipboard.writeText(window.location.href);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+        return;
+      } catch (err) {
+        console.warn('Clipboard write failed, using fallback:', err);
+      }
+    }
+
+    // 3. Fallback for non-HTTPS / Local Network IP addresses
+    try {
+      const textArea = document.createElement('textarea');
+      textArea.value = window.location.href;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-999999px';
+      textArea.style.top = '-999999px';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      const successful = document.execCommand('copy');
+      document.body.removeChild(textArea);
+      if (successful) {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      }
+    } catch (fallbackErr) {
+      console.error('All copy methods failed:', fallbackErr);
+    }
   };
 
   return (
@@ -27,13 +73,13 @@ export default function RecipeHeader({ recipe, onOpenKitchenMode }) {
         <div className="col-lg-8">
           {/* Badges */}
           <div className="d-flex flex-wrap align-items-center gap-2 mb-3">
-            <span className="badge badge-chef-primary d-inline-flex align-items-center gap-1.5">
+            <span className="badge badge-chef-primary d-inline-flex align-items-center gap-1">
               <Sparkles size={13} /> Formulated Master Guide
             </span>
-            <span className="badge badge-chef-gold d-inline-flex align-items-center gap-1.5">
+            <span className="badge badge-chef-gold d-inline-flex align-items-center gap-1">
               <Flame size={13} /> {recipe.spiceLevel} Spice
             </span>
-            <span className="badge badge-chef-green d-inline-flex align-items-center gap-1.5">
+            <span className="badge badge-chef-green d-inline-flex align-items-center gap-1">
               <Zap size={13} /> {recipe.cookingMethod}
             </span>
           </div>
@@ -48,28 +94,40 @@ export default function RecipeHeader({ recipe, onOpenKitchenMode }) {
           </p>
 
           {/* Telemetry Bar */}
-          <div className="row g-2.5 text-center">
-            <div className="col-4 col-sm-3">
-              <div className="p-3 rounded-4" style={{ backgroundColor: 'var(--surface-container-low)', border: '1px solid var(--border-subtle)' }}>
-                <Clock size={22} className="text-danger mb-1" />
-                <div className="font-display fw-bold fs-6 text-dark">{formatDuration(recipe.totalTimeMinutes || 30)}</div>
+          <div className="row g-3">
+            {/* Card 1: Total Time (Full Width on Mobile, 1/3 on Desktop) */}
+            <div className="col-12 col-sm-4">
+              <div
+                className="py-4 px-3.5 rounded-4 h-100 d-flex flex-column align-items-center justify-content-center text-center shadow-xs"
+                style={{ backgroundColor: 'var(--surface-container-low)', border: '1px solid var(--border-subtle)' }}
+              >
+                <Clock size={24} className="text-danger mb-2 flex-shrink-0" />
+                <div className="font-display fw-bold fs-5 text-dark leading-tight mb-0.5">{formatDuration(recipe.totalTimeMinutes || 30)}</div>
                 <div className="text-xs text-muted fw-semibold">Total Time</div>
               </div>
             </div>
 
-            <div className="col-4 col-sm-3">
-              <div className="p-3 rounded-4" style={{ backgroundColor: 'var(--surface-container-low)', border: '1px solid var(--border-subtle)' }}>
-                <Users size={22} className="text-danger mb-1" />
-                <div className="font-display fw-bold fs-5 text-dark">{recipe.servings || 2}</div>
+            {/* Card 2: Servings (Half Width on Mobile, 1/3 on Desktop) */}
+            <div className="col-6 col-sm-4">
+              <div
+                className="py-4 px-3.5 rounded-4 h-100 d-flex flex-column align-items-center justify-content-center text-center shadow-xs"
+                style={{ backgroundColor: 'var(--surface-container-low)', border: '1px solid var(--border-subtle)' }}
+              >
+                <Users size={24} className="text-danger mb-2 flex-shrink-0" />
+                <div className="font-display fw-bold fs-5 text-dark leading-tight mb-0.5">{recipe.servings || 2}</div>
                 <div className="text-xs text-muted fw-semibold">Servings</div>
               </div>
             </div>
 
-            <div className="col-4 col-sm-3">
-              <div className="p-3 rounded-4" style={{ backgroundColor: 'var(--surface-container-low)', border: '1px solid var(--border-subtle)' }}>
-                <Flame size={22} className="text-danger mb-1" />
-                <div className="font-display fw-bold fs-5 text-dark">{recipe.steps?.length || 0}</div>
-                <div className="text-xs text-muted fw-semibold">Steps</div>
+            {/* Card 3: Steps (Half Width on Mobile, 1/3 on Desktop) */}
+            <div className="col-6 col-sm-4">
+              <div
+                className="py-4 px-3.5 rounded-4 h-100 d-flex flex-column align-items-center justify-content-center text-center shadow-xs"
+                style={{ backgroundColor: 'var(--surface-container-low)', border: '1px solid var(--border-subtle)' }}
+              >
+                <Flame size={24} className="text-danger mb-2 flex-shrink-0" />
+                <div className="font-display fw-bold fs-5 text-dark leading-tight mb-0.5">{recipe.steps?.length || 0}</div>
+                <div className="text-xs text-muted fw-semibold">Total Steps</div>
               </div>
             </div>
           </div>
