@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTimer } from '../../context/TimerContext';
-import { Clock, Play, Pause, RotateCcw, Minus, X, Bell, Plus, Sparkles } from 'lucide-react';
+import { Clock, Play, Pause, RotateCcw, Minus, X, Bell, Plus, Sparkles, Sun } from 'lucide-react';
 
 export default function FloatingTimerCard() {
   const {
@@ -9,6 +9,7 @@ export default function FloatingTimerCard() {
     isRunning,
     isCardOpen,
     isAlarming,
+    isWakeLockActive,
     startTimer,
     pauseTimer,
     resetTimer,
@@ -125,8 +126,13 @@ export default function FloatingTimerCard() {
             {formatTimer(secondsLeft)}
           </div>
 
-          <div className="text-xs font-label text-light opacity-75 mt-1 position-relative z-1">
-            {isRunning ? '⏱️ Timer Running...' : secondsLeft === 0 ? 'Completed' : 'Timer Ready'}
+          <div className="text-xs font-label text-light opacity-75 mt-1 position-relative z-1 d-flex align-items-center justify-content-center gap-2">
+            <span>{isRunning ? '⏱️ Timer Running...' : secondsLeft === 0 ? 'Completed' : 'Timer Ready'}</span>
+            {isWakeLockActive && (
+              <span className="badge bg-warning text-dark border px-2 py-0.5 rounded-pill text-xs d-inline-flex align-items-center gap-1 shadow-xs">
+                <Sun size={11} /> Screen Awake Active
+              </span>
+            )}
           </div>
         </div>
 

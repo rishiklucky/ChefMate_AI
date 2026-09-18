@@ -7,7 +7,7 @@ export default function KitchenModeModal({ recipe, onClose }) {
   const [activeStepIndex, setActiveStepIndex] = useState(0);
   const [isAudioEnabled, setIsAudioEnabled] = useState(false);
 
-  const { isRunning: isTimerRunning, secondsLeft, setPresetSeconds, startTimer, openCard, formatTimer } = useTimer();
+  const { isRunning: isTimerRunning, secondsLeft, setPresetSeconds, startTimer, openCard, formatTimer, enableKeepAwake, disableKeepAwake } = useTimer();
 
   if (!recipe || !recipe.steps || recipe.steps.length === 0) return null;
 
@@ -36,8 +36,10 @@ export default function KitchenModeModal({ recipe, onClose }) {
     }
   };
 
-  // Enter Fullscreen Mode on launch and exit on close
+  // Enter Fullscreen Mode & Keep Screen Awake on launch
   useEffect(() => {
+    enableKeepAwake();
+
     const docEl = document.documentElement;
     if (docEl.requestFullscreen) {
       docEl.requestFullscreen().catch(() => { });
@@ -48,6 +50,10 @@ export default function KitchenModeModal({ recipe, onClose }) {
     }
 
     return () => {
+      if (!isTimerRunning) {
+        disableKeepAwake();
+      }
+
       if (document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement) {
         if (document.exitFullscreen) {
           document.exitFullscreen().catch(() => { });

@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import NoSleep from 'nosleep.js';
 
 const TimerContext = createContext();
 
@@ -8,8 +9,98 @@ export const TimerProvider = ({ children }) => {
   const [isRunning, setIsRunning] = useState(false);
   const [isCardOpen, setIsCardOpen] = useState(false);
   const [isAlarming, setIsAlarming] = useState(false);
+  const [isWakeLockActive, setIsWakeLockActive] = useState(false);
 
   const audioCtxRef = useRef(null);
+  const noSleepRef = useRef(null);
+
+  // Initialize NoSleep instance
+  useEffect(() => {
+    noSleepRef.current = new NoSleep();
+    return () => {
+      if (noSleepRef.current && noSleepRef.current.isEnabled) {
+        try {
+          noSleepRef.current.disable();
+        } catch (e) {
+          // ignore cleanup error
+        }
+      }
+    };
+  }, []);
+
+  // Enable NoSleep Screen Keep Awake
+  const enableKeepAwake = () => {
+    try {
+      if (noSleepRef.current && !noSleepRef.current.isEnabled) {
+        noSleepRef.current.enable();
+      }
+      setIsWakeLockActive(true);
+    } catch (err) {
+      console.warn('NoSleep enable error:', err);
+      setIsWakeLockActive(true);
+    }
+  };
+
+  // Disable NoSleep Screen Keep Awake
+  const disableKeepAwake = () => {
+    try {
+      if (noSleepRef.current && noSleepRef.current.isEnabled) {
+        noSleepRef.current.disable();
+      }
+    } catch (err) {
+      console.warn('NoSleep disable error:', err);
+    }
+    setIsWakeLockActive(false);
+  };
+
+  // Synchronous Timer Controls with Keep Awake
+  const startTimer = () => {
+    if (secondsLeft === 0) setSecondsLeft(initialSeconds || 300);
+    setIsRunning(true);
+    setIsAlarming(false);
+    enableKeepAwake();
+  };
+
+  const pauseTimer = () => {
+    setIsRunning(false);
+    disableKeepAwake();
+  };
+
+  const resetTimer = () => {
+    setIsRunning(false);
+    setSecondsLeft(initialSeconds);
+    setIsAlarming(false);
+    disableKeepAwake();
+  };
+
+  const setPresetSeconds = (secs) => {
+    setIsRunning(false);
+    setInitialSeconds(secs);
+    setSecondsLeft(secs);
+    setIsAlarming(false);
+  };
+
+  const addTime = (secsToAdd) => {
+    setSecondsLeft((prev) => prev + secsToAdd);
+    setInitialSeconds((prev) => prev + secsToAdd);
+  };
+
+  // Re-engage Keep Awake on user tap/touch if timer is running
+  useEffect(() => {
+    const handleUserInteraction = () => {
+      if (isRunning && noSleepRef.current && !noSleepRef.current.isEnabled) {
+        enableKeepAwake();
+      }
+    };
+
+    window.addEventListener('touchstart', handleUserInteraction, { passive: true });
+    window.addEventListener('click', handleUserInteraction, { passive: true });
+
+    return () => {
+      window.removeEventListener('touchstart', handleUserInteraction);
+      window.removeEventListener('click', handleUserInteraction);
+    };
+  }, [isRunning]);
 
   // Countdown effect
   useEffect(() => {
@@ -21,6 +112,7 @@ export const TimerProvider = ({ children }) => {
     } else if (secondsLeft === 0 && isRunning) {
       setIsRunning(false);
       setIsAlarming(true);
+      disableKeepAwake();
       playAlarmSound();
     }
     return () => clearInterval(interval);
@@ -59,34 +151,6 @@ export const TimerProvider = ({ children }) => {
     }
   };
 
-  const startTimer = () => {
-    if (secondsLeft === 0) setSecondsLeft(initialSeconds || 300);
-    setIsRunning(true);
-    setIsAlarming(false);
-  };
-
-  const pauseTimer = () => {
-    setIsRunning(false);
-  };
-
-  const resetTimer = () => {
-    setIsRunning(false);
-    setSecondsLeft(initialSeconds);
-    setIsAlarming(false);
-  };
-
-  const setPresetSeconds = (secs) => {
-    setIsRunning(false);
-    setInitialSeconds(secs);
-    setSecondsLeft(secs);
-    setIsAlarming(false);
-  };
-
-  const addTime = (secsToAdd) => {
-    setSecondsLeft((prev) => prev + secsToAdd);
-    setInitialSeconds((prev) => prev + secsToAdd);
-  };
-
   const openCard = () => setIsCardOpen(true);
   const closeCard = () => setIsCardOpen(false);
   const toggleCard = () => setIsCardOpen((prev) => !prev);
@@ -106,6 +170,9 @@ export const TimerProvider = ({ children }) => {
         isRunning,
         isCardOpen,
         isAlarming,
+        isWakeLockActive,
+        enableKeepAwake,
+        disableKeepAwake,
         startTimer,
         pauseTimer,
         resetTimer,

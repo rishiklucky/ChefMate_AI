@@ -36,7 +36,7 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop Navigation Links */}
-          <nav className="d-none d-lg-flex align-items-center gap-2 p-1 rounded-pill border shadow-xs" style={{ backgroundColor: '#ffffff', borderColor: 'rgba(234, 88, 12, 0.18)' }}>
+          <nav className="d-none d-lg-flex align-items-center gap-2 p-1 rounded-pill border shadow-xs m-1" style={{ backgroundColor: '#ffffff', borderColor: 'rgba(234, 88, 12, 0.18)' }}>
             <Link
               to="/"
               className={`px-4 py-2 rounded-pill text-decoration-none font-label fw-semibold text-sm transition-all ${isActive('/')
@@ -91,16 +91,16 @@ export default function Navbar() {
           <div className="d-flex align-items-center gap-2">
             {/* Kitchen Timer Button - Visible ONLY on Recipe Guide Page */}
             {isRecipeGuidePage && (
-              <div className="d-flex align-items-center me-1">
+              <div className="d-flex align-items-center me-1" style={{ padding: '0.25rem' }}>
                 {isRunning && !isCardOpen ? (
                   <button
                     type="button"
-                    className="btn btn-sm rounded-pill px-3 py-1.5 font-mono fw-bold text-xs d-inline-flex align-items-center gap-1.5 shadow-sm text-white transition-all border"
-                    style={{ background: 'linear-gradient(135deg, #ea580c, #c2410c)', borderColor: 'rgba(255,255,255,0.4)' }}
+                    className="btn btn-sm rounded-pill px-3 py-1.5 font-label text-xs fw-bold d-inline-flex align-items-center gap-1.5 shadow-xs transition-all"
+                    style={{ backgroundColor: 'rgba(234, 88, 12, 0.08)', border: '1px solid rgba(234, 88, 12, 0.25)', color: '#ea580c' }}
                     onClick={toggleCard}
                     title="Expand Kitchen Timer"
                   >
-                    <Clock size={14} className="text-warning" />
+                    <Clock size={14} className='m-1' style={{ color: '#ea580c' }} />
                     <span>{formatTimer(secondsLeft)}</span>
                   </button>
                 ) : (
@@ -111,7 +111,7 @@ export default function Navbar() {
                     title="Kitchen Timer"
                     style={{ width: 40, height: 40 }}
                   >
-                    <Clock size={24} className={isAlarming ? 'text-danger animate-bounce' : 'text-danger'} />
+                    <Clock size={24} className={isAlarming ? 'animate-bounce' : ''} style={{ color: '#ea580c' }} />
                   </button>
                 )}
               </div>
@@ -204,9 +204,8 @@ export default function Navbar() {
             <div className="d-flex flex-column align-items-start gap-2">
               <Link
                 to="/"
-                className={`px-4 py-2 text-decoration-none font-label fw-semibold text-sm rounded-pill transition-all ${
-                  isActive('/') ? 'text-white shadow-xs' : 'text-dark hover-bg-light'
-                }`}
+                className={`px-4 py-2 text-decoration-none font-label fw-semibold text-sm rounded-pill transition-all ${isActive('/') ? 'text-white shadow-xs' : 'text-dark hover-bg-light'
+                  }`}
                 style={{
                   background: isActive('/') ? 'linear-gradient(135deg, #ea580c, #c2410c)' : 'transparent',
                 }}
@@ -216,9 +215,8 @@ export default function Navbar() {
               </Link>
               <Link
                 to="/guide"
-                className={`px-4 py-2 text-decoration-none font-label fw-semibold text-sm rounded-pill transition-all ${
-                  isActive('/guide') ? 'text-white shadow-xs' : 'text-dark hover-bg-light'
-                }`}
+                className={`px-4 py-2 text-decoration-none font-label fw-semibold text-sm rounded-pill transition-all ${isActive('/guide') ? 'text-white shadow-xs' : 'text-dark hover-bg-light'
+                  }`}
                 style={{
                   background: isActive('/guide') ? 'linear-gradient(135deg, #ea580c, #c2410c)' : 'transparent',
                 }}
@@ -228,9 +226,8 @@ export default function Navbar() {
               </Link>
               <Link
                 to="/saved"
-                className={`px-4 py-2 text-decoration-none font-label fw-semibold text-sm rounded-pill transition-all ${
-                  isActive('/saved') ? 'text-white shadow-xs' : 'text-dark hover-bg-light'
-                }`}
+                className={`px-4 py-2 text-decoration-none font-label fw-semibold text-sm rounded-pill transition-all ${isActive('/saved') ? 'text-white shadow-xs' : 'text-dark hover-bg-light'
+                  }`}
                 style={{
                   background: isActive('/saved') ? 'linear-gradient(135deg, #ea580c, #c2410c)' : 'transparent',
                 }}
@@ -240,9 +237,8 @@ export default function Navbar() {
               </Link>
               <Link
                 to="/history"
-                className={`px-4 py-2 text-decoration-none font-label fw-semibold text-sm rounded-pill transition-all ${
-                  isActive('/history') ? 'text-white shadow-xs' : 'text-dark hover-bg-light'
-                }`}
+                className={`px-4 py-2 text-decoration-none font-label fw-semibold text-sm rounded-pill transition-all ${isActive('/history') ? 'text-white shadow-xs' : 'text-dark hover-bg-light'
+                  }`}
                 style={{
                   background: isActive('/history') ? 'linear-gradient(135deg, #ea580c, #c2410c)' : 'transparent',
                 }}
@@ -255,9 +251,8 @@ export default function Navbar() {
                 <>
                   <Link
                     to="/profile"
-                    className={`px-4 py-2 text-decoration-none font-label fw-semibold text-sm rounded-pill transition-all ${
-                      isActive('/profile') ? 'text-white shadow-xs' : 'text-dark hover-bg-light'
-                    }`}
+                    className={`px-4 py-2 text-decoration-none font-label fw-semibold text-sm rounded-pill transition-all ${isActive('/profile') ? 'text-white shadow-xs' : 'text-dark hover-bg-light'
+                      }`}
                     style={{
                       background: isActive('/profile') ? 'linear-gradient(135deg, #ea580c, #c2410c)' : 'transparent',
                     }}
