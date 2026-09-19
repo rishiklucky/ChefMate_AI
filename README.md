@@ -39,6 +39,7 @@ Unlike static recipe sites, ChefMate AI dynamically formulates tailored recipes 
 - **Interactive Ingredient Checklist**: Check off ingredients as you prepare them with clean metric and Indian unit formatting (`grams`, `ml`, `cups`, `tsp`, `tbsp`, `pieces`).
 - **Step-by-Step Cooking Timeline**: Track your live cooking progress step-by-step with active step highlighting and completion indicators.
 - **Collapsible Kitchen Timer Widget**: Set timers per cooking step or master kitchen timers with audio alarms and floating control cards visible anywhere in the guide.
+- **📄 1-Click PDF Recipe Export**: Instantly export customized AI cooking guides into beautifully formatted, print-ready PDF documents powered by `html2pdf.js`.
 - **Chef Pro Tips & Highlights**: Gain insights from AI-generated pro tips, common mistakes to avoid, and health & nutrition notes.
 
 ---
@@ -81,6 +82,7 @@ graph TD
 | **Artificial Intelligence** | **Google Gemini AI SDK** | Intelligent recipe generation and instruction tuning |
 | **Authentication** | **JWT & Google Auth Library** | Secure token-based user sessions and Google OAuth 2.0 |
 | **Transactional Email** | **Nodemailer & Brevo API v3** | OTP password reset emails |
+| **PDF Generation** | **html2pdf.js** | Client-side export of recipes into print-ready PDF files |
 
 ---
 
