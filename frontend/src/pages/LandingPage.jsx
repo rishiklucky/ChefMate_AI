@@ -85,13 +85,14 @@ export default function LandingPage() {
           </div>
 
           {/* Right Column: Hero Visual Card */}
-          <div className="col-lg-5">
-            <div className="card-chefmate p-3 p-sm-4 rounded-5 shadow-luxury border position-relative overflow-hidden">
-              <div className="position-relative rounded-4 overflow-hidden mb-3" style={{ height: 210 }}>
+          <div className="col-lg-5 d-flex justify-content-center">
+            <div className="card-chefmate p-3 p-sm-4 rounded-5 shadow-luxury border position-relative overflow-hidden w-100 max-w-md">
+              <div className="position-relative rounded-4 overflow-hidden mb-3" style={{ height: 220 }}>
                 <img
-                  src="https://img.magnific.com/premium-photo/dum-handi-chicken-biryani-is-prepared-earthen-clay-pot-called-haandi-popular-indian-non-vegetarian-food_466689-52350.jpg?auto=format&fit=crop&w=800&q=80"
-                  alt="Delicious Chicken Biryani"
-                  className="w-100 h-100 object-cover"
+                  src="/CB.png"
+                  alt="Hyderabadi Chicken Biryani"
+                  className="w-100 h-100"
+                  style={{ objectFit: 'cover', objectPosition: 'center' }}
                 />
                 <div className="position-absolute top-3 start-3">
                   <span className="badge bg-white text-dark shadow-sm px-2.5 py-1 px-sm-3 py-sm-1.5 rounded-pill text-xs fw-bold border">
@@ -110,7 +111,7 @@ export default function LandingPage() {
                   <div className="text-xs text-muted fw-medium">Prep Time</div>
                 </div>
                 <div className="border-start border-end px-2 px-sm-3 flex-fill">
-                  <div className="font-display fw-bold fs-6 fs-sm-5 text-dark">60 min</div>
+                  <div className="font-display fw-bold fs-6 fs-sm-5 text-dark">40 min</div>
                   <div className="text-xs text-muted fw-medium">Cook Time</div>
                 </div>
                 <div className="flex-fill">
