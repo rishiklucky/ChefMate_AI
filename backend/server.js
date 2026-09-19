@@ -23,9 +23,27 @@ app.get('/api/health', (req, res) => {
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/recipes', require('./routes/recipeRoutes'));
 
-// 404 Handler
-app.use((req, res, next) => {
-  res.status(404).json({ message: `Endpoint not found: ${req.originalUrl}` });
+const path = require('path');
+
+// Serve static assets in production (or single web service mode)
+const frontendDistPath = path.join(__dirname, '../frontend/dist');
+app.use(express.static(frontendDistPath));
+
+// React SPA fallback for non-API GET requests
+app.get('*', (req, res, next) => {
+  if (req.originalUrl.startsWith('/api')) {
+    return next();
+  }
+  res.sendFile(path.join(frontendDistPath, 'index.html'), (err) => {
+    if (err) {
+      next();
+    }
+  });
+});
+
+// 404 Handler for unhandled API routes
+app.use('/api/*', (req, res) => {
+  res.status(404).json({ message: `API Endpoint not found: ${req.originalUrl}` });
 });
 
 // Global Error Handler
