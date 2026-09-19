@@ -143,11 +143,12 @@ export default function IngredientCustomizer({ onGenerateClick }) {
                     <td className="text-end pe-3">
                       <button
                         type="button"
-                        className="btn btn-sm btn-outline-danger p-1.5 rounded-3 transition-all"
+                        className="btn btn-sm p-1.5 rounded-3 transition-all border"
+                        style={{ borderColor: 'rgba(220, 38, 38, 0.4)', backgroundColor: '#fef2f2', color: '#dc2626' }}
                         title="Remove ingredient"
                         onClick={() => removeIngredient(item.id)}
                       >
-                        <Trash2 size={16} />
+                        <Trash2 size={16} style={{ color: '#dc2626' }} />
                       </button>
                     </td>
                   </tr>
@@ -195,12 +196,12 @@ export default function IngredientCustomizer({ onGenerateClick }) {
                         </span>
                         <button
                           type="button"
-                          className="btn btn-sm btn-outline-danger p-1 rounded-circle d-inline-flex align-items-center justify-content-center transition-all"
+                          className="btn btn-sm p-1 rounded-circle d-inline-flex align-items-center justify-content-center transition-all border"
                           title="Remove ingredient"
-                          style={{ width: 30, height: 30 }}
+                          style={{ width: 30, height: 30, borderColor: 'rgba(220, 38, 38, 0.4)', backgroundColor: '#fef2f2', color: '#dc2626' }}
                           onClick={() => removeIngredient(item.id)}
                         >
-                          <Trash2 size={14} />
+                          <Trash2 size={14} style={{ color: '#dc2626' }} />
                         </button>
                       </div>
 

@@ -1,28 +1,61 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
 import { useAuth } from '../context/AuthContext';
-import { Flame, UserPlus, Lock, Mail, User, AlertCircle } from 'lucide-react';
+import { Flame, UserPlus, Lock, Mail, User, AlertCircle, Eye, EyeOff } from 'lucide-react';
+
+class SafeGoogleWrapper extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+  componentDidCatch(err) {
+    console.warn('Google Auth render caught:', err);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <button
+          type="button"
+          className="btn btn-outline-secondary w-100 py-2.5 rounded-pill text-xs fw-bold d-flex align-items-center justify-content-center gap-2"
+          onClick={() => alert('Please configure a valid VITE_GOOGLE_CLIENT_ID in your frontend/.env file.')}
+        >
+          <span>Sign up with Google</span>
+        </button>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 export default function RegisterPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
   const { register, googleLogin, loading, authError } = useAuth();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+
+  const redirectUrl = searchParams.get('redirect')
+    || (location.state?.from ? (location.state.from.pathname + (location.state.from.search || '')) : '/');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const res = await register(name, email, password);
     if (res.success) {
-      navigate('/');
+      navigate(redirectUrl, { replace: true });
     }
   };
 
   const handleGoogleSuccess = async (credentialResponse) => {
     const res = await googleLogin(credentialResponse);
     if (res.success) {
-      navigate('/');
+      navigate(redirectUrl, { replace: true });
     }
   };
 
@@ -56,15 +89,17 @@ export default function RegisterPage() {
         {/* Google OAuth Section */}
         <div className="d-flex flex-column align-items-center w-100 mb-3">
           <div className="w-100 d-flex justify-content-center">
-            <GoogleLogin
-              onSuccess={handleGoogleSuccess}
-              onError={() => console.error('Google Sign-Up Failed')}
-              theme="outline"
-              size="large"
-              shape="pill"
-              text="signup_with"
-              width="100%"
-            />
+            <SafeGoogleWrapper>
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={() => console.error('Google Sign-Up Failed')}
+                theme="outline"
+                size="large"
+                shape="pill"
+                text="signup_with"
+                width="100%"
+              />
+            </SafeGoogleWrapper>
           </div>
         </div>
 
@@ -79,12 +114,12 @@ export default function RegisterPage() {
             <label className="form-label text-xs fw-bold text-uppercase text-muted mb-1">Full Name</label>
             <div className="input-group">
               <span className="input-group-text border-end-0 text-danger rounded-start-3" style={{ backgroundColor: 'var(--surface-container-low)', borderColor: 'var(--border-subtle)' }}>
-                <User size={18} />
+                <User size={18} style={{ color: '#ea580c' }} />
               </span>
               <input
                 type="text"
                 className="form-control border-start-0 text-sm form-control-chef rounded-end-3"
-                placeholder="Chef Gordon"
+                placeholder="Username"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
@@ -96,12 +131,12 @@ export default function RegisterPage() {
             <label className="form-label text-xs fw-bold text-uppercase text-muted mb-1">Email Address</label>
             <div className="input-group">
               <span className="input-group-text border-end-0 text-danger rounded-start-3" style={{ backgroundColor: 'var(--surface-container-low)', borderColor: 'var(--border-subtle)' }}>
-                <Mail size={18} />
+                <Mail size={18} style={{ color: '#ea580c' }} />
               </span>
               <input
                 type="email"
                 className="form-control border-start-0 text-sm form-control-chef rounded-end-3"
-                placeholder="chef@example.com"
+                placeholder="user@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -112,17 +147,30 @@ export default function RegisterPage() {
           <div className="mb-4">
             <label className="form-label text-xs fw-bold text-uppercase text-muted mb-1">Password</label>
             <div className="input-group">
-              <span className="input-group-text border-end-0 text-danger rounded-start-3" style={{ backgroundColor: 'var(--surface-container-low)', borderColor: 'var(--border-subtle)' }}>
-                <Lock size={18} />
+              <span className="input-group-text border-end-0 rounded-start-3" style={{ backgroundColor: 'var(--surface-container-low)', borderColor: 'var(--border-subtle)' }}>
+                <Lock size={18} style={{ color: '#ea580c' }} />
               </span>
               <input
-                type="password"
-                className="form-control border-start-0 text-sm form-control-chef rounded-end-3"
+                type={showPassword ? 'text' : 'password'}
+                className="form-control border-start-0 border-end-0 text-sm form-control-chef"
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
+              <button
+                type="button"
+                className="input-group-text border-start-0 bg-transparent rounded-end-3"
+                style={{ backgroundColor: 'var(--surface-container-low)', borderColor: 'var(--border-subtle)', cursor: 'pointer' }}
+                onClick={() => setShowPassword(!showPassword)}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? (
+                  <EyeOff size={18} style={{ color: '#ea580c' }} />
+                ) : (
+                  <Eye size={18} style={{ color: '#78716c' }} />
+                )}
+              </button>
             </div>
           </div>
 
@@ -144,7 +192,7 @@ export default function RegisterPage() {
 
         <div className="text-center mt-4 pt-3 border-top text-xs text-muted">
           Already have an account?{' '}
-          <Link to="/login" className="text-danger fw-bold text-decoration-none hover-underline">
+          <Link to={`/login${location.search}`} className=" fw-bold text-decoration-none hover-underline" style={{ color: '#ea580c' }}>
             Sign In
           </Link>
         </div>

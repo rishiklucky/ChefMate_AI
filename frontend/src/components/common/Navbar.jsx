@@ -6,12 +6,17 @@ import { useTimer } from '../../context/TimerContext';
 import { Utensils, Flame, BookOpen, Clock, Bookmark, LogIn, User, Sparkles, Menu, X } from 'lucide-react';
 
 export default function Navbar() {
+  const [mobileNavOpen, setMobileNavOpen] = React.useState(false);
   const { user, isAuthenticated, logout } = useAuth();
   const { currentRecipe } = useRecipe();
   const { secondsLeft, isRunning, isCardOpen, isAlarming, toggleCard, formatTimer } = useTimer();
   const navigate = useNavigate();
   const location = useLocation();
-  const [mobileNavOpen, setMobileNavOpen] = React.useState(false);
+  const handleLogout = () => {
+    logout();
+    setMobileNavOpen(false);
+    navigate('/');
+  };
 
   const isActive = (path) => location.pathname === path;
   const isRecipeGuidePage = location.pathname === '/guide' || location.pathname.startsWith('/guide');
@@ -61,30 +66,34 @@ export default function Navbar() {
             >
               AI Recipe Studio
             </Link>
-            <Link
-              to="/saved"
-              className={`px-4 py-2 rounded-pill text-decoration-none font-label fw-semibold text-sm transition-all ${isActive('/saved')
-                ? 'text-white shadow-xs'
-                : 'text-secondary hover-text-dark'
-                }`}
-              style={{
-                background: isActive('/saved') ? 'linear-gradient(135deg, #ea580c, #c2410c)' : 'transparent',
-              }}
-            >
-              Saved
-            </Link>
-            <Link
-              to="/history"
-              className={`px-4 py-2 rounded-pill text-decoration-none font-label fw-semibold text-sm transition-all ${isActive('/history')
-                ? 'text-white shadow-xs'
-                : 'text-secondary hover-text-dark'
-                }`}
-              style={{
-                background: isActive('/history') ? 'linear-gradient(135deg, #ea580c, #c2410c)' : 'transparent',
-              }}
-            >
-              History
-            </Link>
+            {isAuthenticated && (
+              <>
+                <Link
+                  to="/saved"
+                  className={`px-4 py-2 rounded-pill text-decoration-none font-label fw-semibold text-sm transition-all ${isActive('/saved')
+                    ? 'text-white shadow-xs'
+                    : 'text-secondary hover-text-dark'
+                    }`}
+                  style={{
+                    background: isActive('/saved') ? 'linear-gradient(135deg, #ea580c, #c2410c)' : 'transparent',
+                  }}
+                >
+                  Saved
+                </Link>
+                <Link
+                  to="/history"
+                  className={`px-4 py-2 rounded-pill text-decoration-none font-label fw-semibold text-sm transition-all ${isActive('/history')
+                    ? 'text-white shadow-xs'
+                    : 'text-secondary hover-text-dark'
+                    }`}
+                  style={{
+                    background: isActive('/history') ? 'linear-gradient(135deg, #ea580c, #c2410c)' : 'transparent',
+                  }}
+                >
+                  History
+                </Link>
+              </>
+            )}
           </nav>
 
           {/* Right Action Cluster */}
@@ -156,17 +165,12 @@ export default function Navbar() {
                     <>
                       <li>
                         <Link className="dropdown-item d-flex align-items-center gap-2 py-2 rounded-3 text-sm fw-medium" to="/profile">
-                          <User size={16} className="text-danger" /> Profile & Settings
-                        </Link>
-                      </li>
-                      <li>
-                        <Link className="dropdown-item d-flex align-items-center gap-2 py-2 rounded-3 text-sm fw-medium" to="/saved">
-                          <Bookmark size={16} className="text-danger" /> Saved Recipes
+                          <User size={16} className="text-chef-orange" /> Profile
                         </Link>
                       </li>
                       <li><hr className="dropdown-divider opacity-10" /></li>
                       <li>
-                        <button className="dropdown-item d-flex align-items-center gap-2 py-2 rounded-3 text-sm fw-semibold text-danger" onClick={logout}>
+                        <button className="dropdown-item d-flex align-items-center gap-2 py-2 rounded-3 text-sm fw-semibold text-danger" onClick={handleLogout}>
                           Sign Out
                         </button>
                       </li>
@@ -175,12 +179,12 @@ export default function Navbar() {
                     <>
                       <li>
                         <Link className="dropdown-item d-flex align-items-center gap-2 py-2 rounded-3 text-sm fw-medium" to="/login">
-                          <LogIn size={16} className="text-danger" /> Sign In
+                          <LogIn size={16} className="text-chef-orange" /> Sign In
                         </Link>
                       </li>
                       <li>
-                        <Link className="dropdown-item d-flex align-items-center gap-2 py-2 rounded-3 text-sm fw-semibold text-danger" to="/register">
-                          <Sparkles size={16} className="text-danger" /> Register / Join
+                        <Link className="dropdown-item d-flex align-items-center gap-2 py-2 rounded-3 text-sm fw-semibold text-chef-orange" to="/register">
+                          <Sparkles size={16} className="text-chef-orange" /> Register / Join
                         </Link>
                       </li>
                     </>
@@ -197,7 +201,7 @@ export default function Navbar() {
               style={{ width: 40, height: 40 }}
             >
               {mobileNavOpen ? (
-                <X size={24} className="text-danger" />
+                <X size={24} className="text-chef-orange" />
               ) : (
                 <span style={{ fontSize: '24px', lineHeight: 1 }} role="img" aria-label="Mobile Navigation Menu">
                   🍔
@@ -233,28 +237,32 @@ export default function Navbar() {
               >
                 AI Recipe Studio
               </Link>
-              <Link
-                to="/saved"
-                className={`px-4 py-2 text-decoration-none font-label fw-semibold text-sm rounded-pill transition-all ${isActive('/saved') ? 'text-white shadow-xs' : 'text-dark hover-bg-light'
-                  }`}
-                style={{
-                  background: isActive('/saved') ? 'linear-gradient(135deg, #ea580c, #c2410c)' : 'transparent',
-                }}
-                onClick={() => setMobileNavOpen(false)}
-              >
-                Saved Recipes
-              </Link>
-              <Link
-                to="/history"
-                className={`px-4 py-2 text-decoration-none font-label fw-semibold text-sm rounded-pill transition-all ${isActive('/history') ? 'text-white shadow-xs' : 'text-dark hover-bg-light'
-                  }`}
-                style={{
-                  background: isActive('/history') ? 'linear-gradient(135deg, #ea580c, #c2410c)' : 'transparent',
-                }}
-                onClick={() => setMobileNavOpen(false)}
-              >
-                History
-              </Link>
+              {isAuthenticated && (
+                <>
+                  <Link
+                    to="/saved"
+                    className={`px-4 py-2 text-decoration-none font-label fw-semibold text-sm rounded-pill transition-all ${isActive('/saved') ? 'text-white shadow-xs' : 'text-dark hover-bg-light'
+                      }`}
+                    style={{
+                      background: isActive('/saved') ? 'linear-gradient(135deg, #ea580c, #c2410c)' : 'transparent',
+                    }}
+                    onClick={() => setMobileNavOpen(false)}
+                  >
+                    Saved Recipes
+                  </Link>
+                  <Link
+                    to="/history"
+                    className={`px-4 py-2 text-decoration-none font-label fw-semibold text-sm rounded-pill transition-all ${isActive('/history') ? 'text-white shadow-xs' : 'text-dark hover-bg-light'
+                      }`}
+                    style={{
+                      background: isActive('/history') ? 'linear-gradient(135deg, #ea580c, #c2410c)' : 'transparent',
+                    }}
+                    onClick={() => setMobileNavOpen(false)}
+                  >
+                    History
+                  </Link>
+                </>
+              )}
 
               {isAuthenticated ? (
                 <>
@@ -269,7 +277,7 @@ export default function Navbar() {
                   >
                     Profile & Settings
                   </Link>
-                  <button className="btn btn-danger rounded-pill w-100 mt-2 py-2 fw-semibold" onClick={() => { logout(); setMobileNavOpen(false); }}>
+                  <button className="btn btn-danger rounded-pill w-100 mt-2 py-2 fw-semibold" onClick={handleLogout}>
                     Sign Out
                   </button>
                 </>

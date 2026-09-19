@@ -246,6 +246,10 @@ h1, h2, h3, h4, h5, h6, .font-display {
   -webkit-text-fill-color: transparent;
 }
 
+.text-chef-orange {
+  color: #ea580c !important;
+}
+
 /* Responsive Padding & Alignment Helpers */
 .max-w-4xl { max-width: 56rem !important; }
 .max-w-5xl { max-width: 64rem !important; }
@@ -271,8 +275,8 @@ h1, h2, h3, h4, h5, h6, .font-display {
   }
 }
 
-\.p-3\.5 {
-  padding: 1rem !important;
+.p-3\.5 {
+  padding: 1.15rem !important;
 }
 
 @media (min-width: 576px) {

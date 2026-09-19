@@ -1,16 +1,41 @@
-import React, { useState } from 'react';
-import { Flame, Clock, Users, Zap, Bookmark, Sparkles, Share2, Download } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
+import { Flame, Clock, Users, Zap, Bookmark, Sparkles, Share2, Download, AlertCircle } from 'lucide-react';
 import html2pdf from 'html2pdf.js';
 import { useRecipe } from '../../context/RecipeContext';
+import { useAuth } from '../../context/AuthContext';
 import { useTimer } from '../../context/TimerContext';
 import { formatDuration } from '../../utils/formatters';
 import RecipePdfTemplate from './RecipePdfTemplate';
 
 export default function RecipeHeader({ recipe, onOpenKitchenMode }) {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { isAuthenticated } = useAuth();
   const { toggleSaveRecipe } = useRecipe();
   const { enableKeepAwake } = useTimer();
   const [copied, setCopied] = useState(false);
   const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
+  const [saveError, setSaveError] = useState(null);
+
+  useEffect(() => {
+    const isAutosave = searchParams.get('autosave') === 'true' || location.state?.autosave;
+    if (isAuthenticated && recipe && !recipe.isSaved && isAutosave) {
+      const executeAutosave = async () => {
+        const res = await toggleSaveRecipe(recipe._id);
+        if (res && !res.success && res.error) {
+          setSaveError(res.error);
+        }
+        if (searchParams.has('autosave')) {
+          const updatedParams = new URLSearchParams(searchParams);
+          updatedParams.delete('autosave');
+          setSearchParams(updatedParams, { replace: true });
+        }
+      };
+      executeAutosave();
+    }
+  }, [isAuthenticated, recipe?._id, searchParams]);
 
   if (!recipe) return null;
 
@@ -181,15 +206,33 @@ export default function RecipeHeader({ recipe, onOpenKitchenMode }) {
             <span style={{ pointerEvents: 'none' }}>Launch Live Kitchen Mode</span>
           </button>
 
+          {/* Save Error Banner */}
+          {saveError && (
+            <div className="alert border d-flex align-items-center gap-2 py-2 px-3 text-xs w-100 rounded-3 m-0" style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', borderColor: 'rgba(239, 68, 68, 0.3)', color: '#dc2626' }}>
+              <AlertCircle size={15} className="flex-shrink-0" />
+              <span className="fw-semibold">{saveError}</span>
+            </div>
+          )}
+
           {/* 2. Save Recipe & Share Button Group */}
           <div className="d-flex gap-2 w-100">
             <button
               type="button"
               className={`btn ${recipe.isSaved ? 'btn-primary-chef text-white shadow-xs' : 'btn-secondary-chef'} py-2.5 px-3 w-50 font-label fw-semibold d-flex align-items-center justify-content-center gap-2 rounded-3 cursor-pointer select-none transition-all`}
               style={{ touchAction: 'manipulation' }}
-              onClick={(e) => {
+              onClick={async (e) => {
                 e.stopPropagation();
-                toggleSaveRecipe(recipe._id);
+                setSaveError(null);
+                if (!isAuthenticated) {
+                  const separator = location.search ? '&' : '?';
+                  const returnUrl = `${location.pathname}${location.search}${separator}autosave=true`;
+                  navigate(`/login?redirect=${encodeURIComponent(returnUrl)}`, { state: { from: location, autosave: true } });
+                  return;
+                }
+                const res = await toggleSaveRecipe(recipe._id);
+                if (res && !res.success && res.error) {
+                  setSaveError(res.error);
+                }
               }}
             >
               <Bookmark size={18} className={recipe.isSaved ? 'fill-white' : ''} style={{ pointerEvents: 'none' }} />

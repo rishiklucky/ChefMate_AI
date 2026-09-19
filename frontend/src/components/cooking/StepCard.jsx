@@ -163,7 +163,7 @@ export default function StepCard({ step, isCompleted, onToggleComplete, classNam
               disabled={isTimerRunning}
               title={isTimerRunning ? 'Master Kitchen Timer is currently running' : `Set master timer for ${timeMinutes} mins`}
             >
-              <Clock size={14} className={isTimerRunning ? 'text-muted' : 'text-warning'} />
+              <Clock size={14} className={isTimerRunning ? 'text-muted m-1' : 'text-warning m-1'} />
               <span>{isTimerRunning ? 'Timer Running' : `Set Timer (${timeMinutes}m)`}</span>
             </button>
           </div>

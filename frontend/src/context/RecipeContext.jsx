@@ -127,7 +127,7 @@ export const RecipeProvider = ({ children }) => {
   const toggleSaveRecipe = async (recipeId) => {
     try {
       const targetId = recipeId || (currentRecipe ? currentRecipe._id : null);
-      if (!targetId) return;
+      if (!targetId) return { success: false, error: 'No recipe ID provided' };
 
       const res = await API.post(`/recipes/${targetId}/save`);
       
@@ -137,29 +137,33 @@ export const RecipeProvider = ({ children }) => {
       }
 
       fetchSavedRecipes();
-      return res.data;
+      return { success: true, ...res.data };
     } catch (err) {
       console.error('Failed to toggle save recipe:', err);
+      const msg = err.response?.data?.message || 'Failed to update saved recipes.';
+      return { success: false, error: msg };
     }
   };
 
-  // Fetch History
+  // Fetch History (Max 5)
   const fetchRecipeHistory = async () => {
     try {
       const res = await API.get('/recipes');
       setRecipeHistory(res.data || []);
     } catch (err) {
       console.error('Error fetching history:', err);
+      setRecipeHistory([]);
     }
   };
 
-  // Fetch Saved
+  // Fetch Saved (Max 20)
   const fetchSavedRecipes = async () => {
     try {
       const res = await API.get('/recipes/saved');
       setSavedRecipes(res.data || []);
     } catch (err) {
       console.error('Error fetching saved:', err);
+      setSavedRecipes([]);
     }
   };
 

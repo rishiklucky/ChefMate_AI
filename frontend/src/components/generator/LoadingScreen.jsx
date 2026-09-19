@@ -88,7 +88,7 @@ export default function LoadingScreen({ dishName, servings, cookingMethod }) {
 
         {/* Progress Bar */}
         <div className="mb-3.5">
-          <div className="d-flex align-items-center justify-content-between text-xs text-muted fw-bold mb-1.5">
+          <div className="d-flex align-items-center justify-content-between text-xs text-muted fw-bold mb-1.5 m-1">
             <span>Creation Progress</span>
             <span style={{ color: '#ea580c' }}>{progressPercent}%</span>
           </div>
@@ -124,7 +124,7 @@ export default function LoadingScreen({ dishName, servings, cookingMethod }) {
         >
           <div className="d-flex align-items-center justify-content-center gap-2.5">
             <div
-              className="spinner-border spinner-border-sm flex-shrink-0"
+              className="spinner-border spinner-border-sm flex-shrink-0 m-1"
               style={{ color: '#ea580c', width: '1.1rem', height: '1.1rem' }}
               role="status"
             />
@@ -145,21 +145,21 @@ export default function LoadingScreen({ dishName, servings, cookingMethod }) {
                 <div
                   key={idx}
                   className={`d-flex align-items-start gap-2.5 text-xs transition-all ${isDone
-                      ? 'text-dark fw-medium'
-                      : isCurrent
-                        ? 'text-dark fw-bold'
-                        : 'text-muted opacity-50'
+                    ? 'text-dark fw-medium'
+                    : isCurrent
+                      ? 'text-dark fw-bold'
+                      : 'text-muted opacity-50'
                     }`}
                 >
                   {isDone ? (
-                    <CheckCircle2 size={16} className="text-success flex-shrink-0 mt-0.5" />
+                    <CheckCircle2 size={16} className="text-success flex-shrink-0 mt-0.5 m-1" />
                   ) : isCurrent ? (
                     <div
-                      className="spinner-grow spinner-grow-sm flex-shrink-0 mt-0.5"
+                      className="spinner-grow spinner-grow-sm flex-shrink-0 mt-0.5 m-1"
                       style={{ width: 14, height: 14, color: '#ea580c' }}
                     />
                   ) : (
-                    <Clock size={15} className="text-muted flex-shrink-0 mt-0.5 opacity-50" />
+                    <Clock size={15} className="text-muted flex-shrink-0 mt-0.5 opacity-50 m-1" />
                   )}
                   <span className="leading-snug">{msg}</span>
                 </div>

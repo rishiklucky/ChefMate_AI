@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { OAuth2Client } = require('google-auth-library');
 const { getIsConnected } = require('../config/db');
+const { sendOtpEmail } = require('../services/emailService');
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -241,5 +242,135 @@ exports.getMe = async (req, res) => {
     }
   } catch (error) {
     res.status(500).json({ message: 'Server error fetching user profile' });
+  }
+};
+
+// Forgot Password - Send OTP via Brevo / Email
+exports.forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ message: 'Please provide your email address' });
+    }
+
+    const cleanEmail = email.toLowerCase().trim();
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+    if (!getIsConnected()) {
+      const user = memoryUsers.find((u) => u.email === cleanEmail);
+      if (!user) {
+        return res.status(404).json({ message: 'No registered user found with this email address' });
+      }
+      user.resetOtp = otp;
+      user.resetOtpExpires = otpExpires;
+
+      await sendOtpEmail(cleanEmail, otp);
+      return res.json({ success: true, message: 'OTP verification code sent to your email.' });
+    }
+
+    const user = await User.findOne({ email: cleanEmail });
+    if (!user) {
+      return res.status(404).json({ message: 'No registered user found with this email address' });
+    }
+
+    user.resetOtp = otp;
+    user.resetOtpExpires = otpExpires;
+    await user.save();
+
+    await sendOtpEmail(cleanEmail, otp);
+    res.json({ success: true, message: 'OTP verification code sent to your email.' });
+  } catch (error) {
+    console.error('Forgot password error:', error);
+    res.status(500).json({ message: 'Server error processing password reset request' });
+  }
+};
+
+// Verify OTP Code
+exports.verifyOtp = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+    if (!email || !otp) {
+      return res.status(400).json({ message: 'Please provide email and OTP code' });
+    }
+
+    const cleanEmail = email.toLowerCase().trim();
+
+    if (!getIsConnected()) {
+      const user = memoryUsers.find((u) => u.email === cleanEmail);
+      if (!user || user.resetOtp !== otp.trim()) {
+        return res.status(400).json({ message: 'Invalid OTP code. Please check and try again.' });
+      }
+      if (user.resetOtpExpires && new Date(user.resetOtpExpires) < new Date()) {
+        return res.status(400).json({ message: 'OTP code has expired. Please request a new code.' });
+      }
+      return res.json({ success: true, message: 'OTP code verified successfully' });
+    }
+
+    const user = await User.findOne({ email: cleanEmail });
+    if (!user || user.resetOtp !== otp.trim()) {
+      return res.status(400).json({ message: 'Invalid OTP code. Please check and try again.' });
+    }
+
+    if (user.resetOtpExpires && new Date(user.resetOtpExpires) < new Date()) {
+      return res.status(400).json({ message: 'OTP code has expired. Please request a new code.' });
+    }
+
+    res.json({ success: true, message: 'OTP code verified successfully' });
+  } catch (error) {
+    console.error('Verify OTP error:', error);
+    res.status(500).json({ message: 'Server error verifying OTP' });
+  }
+};
+
+// Reset Password with OTP
+exports.resetPassword = async (req, res) => {
+  try {
+    const { email, otp, newPassword } = req.body;
+    if (!email || !otp || !newPassword) {
+      return res.status(400).json({ message: 'Please provide email, OTP, and new password' });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({ message: 'Password must be at least 6 characters long' });
+    }
+
+    const cleanEmail = email.toLowerCase().trim();
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    if (!getIsConnected()) {
+      const user = memoryUsers.find((u) => u.email === cleanEmail);
+      if (!user || user.resetOtp !== otp.trim()) {
+        return res.status(400).json({ message: 'Invalid or expired OTP code' });
+      }
+      if (user.resetOtpExpires && new Date(user.resetOtpExpires) < new Date()) {
+        return res.status(400).json({ message: 'OTP code has expired. Please request a new code.' });
+      }
+
+      user.password = hashedPassword;
+      user.resetOtp = null;
+      user.resetOtpExpires = null;
+      return res.json({ success: true, message: 'Password reset successful! You can now sign in.' });
+    }
+
+    const user = await User.findOne({ email: cleanEmail });
+    if (!user || user.resetOtp !== otp.trim()) {
+      return res.status(400).json({ message: 'Invalid or expired OTP code' });
+    }
+
+    if (user.resetOtpExpires && new Date(user.resetOtpExpires) < new Date()) {
+      return res.status(400).json({ message: 'OTP code has expired. Please request a new code.' });
+    }
+
+    user.password = hashedPassword;
+    user.resetOtp = null;
+    user.resetOtpExpires = null;
+    await user.save();
+
+    res.json({ success: true, message: 'Password reset successful! You can now sign in.' });
+  } catch (error) {
+    console.error('Reset password error:', error);
+    res.status(500).json({ message: 'Server error resetting password' });
   }
 };

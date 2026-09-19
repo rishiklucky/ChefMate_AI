@@ -13,10 +13,10 @@ const { protect, optionalAuth } = require('../middleware/authMiddleware');
 
 router.post('/preliminary-ingredients', getPreliminaryIngredients);
 router.post('/generate', optionalAuth, generateRecipe);
-router.get('/', optionalAuth, getRecipes);
-router.get('/saved', optionalAuth, getSavedRecipes);
-router.get('/:id', getRecipeById);
-router.post('/:id/save', optionalAuth, toggleSaveRecipe);
-router.delete('/:id', optionalAuth, deleteRecipe);
+router.get('/', protect, getRecipes);
+router.get('/saved', protect, getSavedRecipes);
+router.get('/:id', optionalAuth, getRecipeById);
+router.post('/:id/save', protect, toggleSaveRecipe);
+router.delete('/:id', protect, deleteRecipe);
 
 module.exports = router;

@@ -5,6 +5,7 @@ const { getIsConnected } = require('../config/db');
 
 // In-memory fallback recipe store if MongoDB is offline
 const memoryRecipes = [];
+const memoryUserSavedMap = {}; // userId -> Array of saved recipe IDs
 
 // POST /api/recipes/preliminary-ingredients
 exports.getPreliminaryIngredients = async (req, res) => {
@@ -38,6 +39,8 @@ exports.generateRecipe = async (req, res) => {
       return res.status(400).json({ message: 'Dish name is required' });
     }
 
+    const userId = req.user ? req.user._id : null;
+
     const recipeData = await generateFullRecipe({
       dishName: dishName.trim(),
       servings: Number(servings) || 2,
@@ -46,19 +49,32 @@ exports.generateRecipe = async (req, res) => {
       ingredients: Array.isArray(ingredients) ? ingredients : [],
     });
 
-    const userId = req.user ? req.user._id : null;
-
     if (!getIsConnected()) {
       // Memory store fallback
       const savedDoc = {
         _id: 'rec_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
-        userId,
+        userId: userId ? userId.toString() : null,
         ...recipeData,
-        isSaved: false,
         createdAt: new Date(),
       };
       memoryRecipes.unshift(savedDoc);
-      return res.status(201).json(savedDoc);
+
+      // Auto-trim memory history if user is logged in: Keep max 5 per user
+      if (userId) {
+        const userHistory = memoryRecipes.filter((r) => r.userId === userId.toString());
+        if (userHistory.length > 5) {
+          const userSaved = memoryUserSavedMap[userId.toString()] || [];
+          const excess = userHistory.slice(5);
+          excess.forEach((oldRec) => {
+            if (!userSaved.includes(oldRec._id.toString())) {
+              const idx = memoryRecipes.findIndex((r) => r._id === oldRec._id);
+              if (idx !== -1) memoryRecipes.splice(idx, 1);
+            }
+          });
+        }
+      }
+
+      return res.status(201).json({ ...savedDoc, isSaved: false });
     }
 
     const newRecipe = new Recipe({
@@ -68,7 +84,24 @@ exports.generateRecipe = async (req, res) => {
     });
 
     const savedRecipe = await newRecipe.save();
-    res.status(201).json(savedRecipe);
+
+    // Auto-trim MongoDB history if user is logged in: Keep max 5 per user
+    if (userId) {
+      const userRecipes = await Recipe.find({ userId }).sort({ createdAt: -1 });
+      if (userRecipes.length > 5) {
+        const user = await User.findById(userId);
+        const userSavedIds = user && user.savedRecipes ? user.savedRecipes.map((s) => s.toString()) : [];
+        const olderRecipes = userRecipes.slice(5);
+        for (const oldRecipe of olderRecipes) {
+          if (!userSavedIds.includes(oldRecipe._id.toString())) {
+            await Recipe.findByIdAndDelete(oldRecipe._id);
+          }
+        }
+      }
+    }
+
+    const resDoc = savedRecipe.toObject();
+    res.status(201).json({ ...resDoc, isSaved: false });
   } catch (error) {
     console.error('Error in recipe generation endpoint:', error);
     res.status(500).json({
@@ -78,44 +111,74 @@ exports.generateRecipe = async (req, res) => {
   }
 };
 
-// GET /api/recipes
+// GET /api/recipes (User Cooking History - Max 5)
 exports.getRecipes = async (req, res) => {
   try {
+    if (!req.user || !req.user._id) {
+      return res.status(401).json({ message: 'Authentication required to view cooking history.' });
+    }
+
+    const userId = req.user._id;
+
     if (!getIsConnected()) {
-      return res.json(memoryRecipes);
+      const userSaved = memoryUserSavedMap[userId.toString()] || [];
+      const history = memoryRecipes
+        .filter((r) => r.userId === userId.toString())
+        .slice(0, 5)
+        .map((r) => ({ ...r, isSaved: userSaved.includes(r._id.toString()) }));
+      return res.json(history);
     }
 
-    let filter = {};
-    if (req.user) {
-      filter = { $or: [{ userId: req.user._id }, { userId: null }] };
-    }
+    const user = await User.findById(userId);
+    const userSavedIds = user && user.savedRecipes ? user.savedRecipes.map((s) => s.toString()) : [];
 
-    const recipes = await Recipe.find(filter).sort({ createdAt: -1 }).limit(20);
-    res.json(recipes);
+    const recipes = await Recipe.find({ userId }).sort({ createdAt: -1 }).limit(5);
+    const historyWithSaved = recipes.map((r) => {
+      const doc = r.toObject();
+      return { ...doc, isSaved: userSavedIds.includes(doc._id.toString()) };
+    });
+
+    res.json(historyWithSaved);
   } catch (error) {
     console.error('Error fetching recipes:', error);
     res.status(500).json({ message: 'Server error fetching recipes' });
   }
 };
 
-// GET /api/recipes/saved
+// GET /api/recipes/saved (User Saved Recipes - Isolated per user)
 exports.getSavedRecipes = async (req, res) => {
   try {
+    if (!req.user || !req.user._id) {
+      return res.status(401).json({ message: 'Authentication required to view saved recipes.' });
+    }
+
+    const userId = req.user._id;
+
     if (!getIsConnected()) {
-      const saved = memoryRecipes.filter((r) => r.isSaved);
+      const userSavedIds = memoryUserSavedMap[userId.toString()] || [];
+      const saved = memoryRecipes
+        .filter((r) => userSavedIds.includes(r._id.toString()))
+        .map((r) => ({ ...r, isSaved: true }));
       return res.json(saved);
     }
 
-    if (!req.user) {
-      const savedGuest = await Recipe.find({ isSaved: true }).sort({ createdAt: -1 });
-      return res.json(savedGuest);
+    const user = await User.findById(userId).populate({
+      path: 'savedRecipes',
+      options: { sort: { createdAt: -1 } },
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
     }
 
-    const saved = await Recipe.find({
-      $or: [{ userId: req.user._id, isSaved: true }, { isSaved: true }],
-    }).sort({ createdAt: -1 });
+    const savedList = (user.savedRecipes || [])
+      .filter(Boolean)
+      .map((rec) => {
+        const doc = rec.toObject ? rec.toObject() : rec;
+        return { ...doc, isSaved: true };
+      });
 
-    res.json(saved);
+    res.json(savedList);
   } catch (error) {
     console.error('Error fetching saved recipes:', error);
     res.status(500).json({ message: 'Server error fetching saved recipes' });
@@ -130,30 +193,77 @@ exports.getRecipeById = async (req, res) => {
     if (!getIsConnected()) {
       const recipe = memoryRecipes.find((r) => r._id.toString() === id);
       if (!recipe) return res.status(404).json({ message: 'Recipe not found' });
-      return res.json(recipe);
+
+      let isSavedForUser = false;
+      if (req.user && req.user._id) {
+        const userSaved = memoryUserSavedMap[req.user._id.toString()] || [];
+        isSavedForUser = userSaved.includes(id.toString());
+      }
+      return res.json({ ...recipe, isSaved: isSavedForUser });
     }
 
     const recipe = await Recipe.findById(id);
     if (!recipe) {
       return res.status(404).json({ message: 'Recipe not found' });
     }
-    res.json(recipe);
+
+    let isSavedForUser = false;
+    if (req.user && req.user._id) {
+      const user = await User.findById(req.user._id);
+      if (user && user.savedRecipes) {
+        isSavedForUser = user.savedRecipes.some(
+          (savedId) => savedId.toString() === recipe._id.toString()
+        );
+      }
+    }
+
+    const doc = recipe.toObject();
+    res.json({ ...doc, isSaved: isSavedForUser });
   } catch (error) {
     console.error('Error fetching recipe by ID:', error);
     res.status(500).json({ message: 'Server error fetching recipe' });
   }
 };
 
-// POST /api/recipes/:id/save
+// POST /api/recipes/:id/save (Save Cap = 20)
 exports.toggleSaveRecipe = async (req, res) => {
   try {
     const { id } = req.params;
 
+    if (!req.user || !req.user._id) {
+      return res.status(401).json({ message: 'Authentication required to save recipes.' });
+    }
+
+    const userId = req.user._id;
+
     if (!getIsConnected()) {
       const recipe = memoryRecipes.find((r) => r._id.toString() === id);
       if (!recipe) return res.status(404).json({ message: 'Recipe not found' });
-      recipe.isSaved = !recipe.isSaved;
-      return res.json({ isSaved: recipe.isSaved, message: recipe.isSaved ? 'Saved to collection' : 'Removed from collection' });
+
+      if (!memoryUserSavedMap[userId.toString()]) {
+        memoryUserSavedMap[userId.toString()] = [];
+      }
+
+      const userSaved = memoryUserSavedMap[userId.toString()];
+      const isAlreadySaved = userSaved.includes(id.toString());
+
+      if (!isAlreadySaved) {
+        if (userSaved.length >= 20) {
+          return res.status(400).json({ message: 'Limit reached: You can save up to 20 recipes maximum.' });
+        }
+        userSaved.push(id.toString());
+        return res.json({
+          isSaved: true,
+          message: 'Recipe saved successfully',
+        });
+      } else {
+        const idx = userSaved.indexOf(id.toString());
+        if (idx !== -1) userSaved.splice(idx, 1);
+        return res.json({
+          isSaved: false,
+          message: 'Recipe removed from saved list',
+        });
+      }
     }
 
     const recipe = await Recipe.findById(id);
@@ -161,21 +271,32 @@ exports.toggleSaveRecipe = async (req, res) => {
       return res.status(404).json({ message: 'Recipe not found' });
     }
 
-    recipe.isSaved = !recipe.isSaved;
-    await recipe.save();
-
-    if (req.user) {
-      if (recipe.isSaved) {
-        await User.findByIdAndUpdate(req.user._id, { $addToSet: { savedRecipes: recipe._id } });
-      } else {
-        await User.findByIdAndUpdate(req.user._id, { $pull: { savedRecipes: recipe._id } });
-      }
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
     }
 
-    res.json({
-      isSaved: recipe.isSaved,
-      message: recipe.isSaved ? 'Recipe saved successfully' : 'Recipe removed from saved list',
-    });
+    const isAlreadySaved = user.savedRecipes.some(
+      (savedId) => savedId.toString() === recipe._id.toString()
+    );
+
+    if (!isAlreadySaved) {
+      if (user.savedRecipes.length >= 20) {
+        return res.status(400).json({ message: 'Limit reached: You can save up to 20 recipes maximum.' });
+      }
+
+      await User.findByIdAndUpdate(userId, { $addToSet: { savedRecipes: recipe._id } });
+      res.json({
+        isSaved: true,
+        message: 'Recipe saved successfully',
+      });
+    } else {
+      await User.findByIdAndUpdate(userId, { $pull: { savedRecipes: recipe._id } });
+      res.json({
+        isSaved: false,
+        message: 'Recipe removed from saved list',
+      });
+    }
   } catch (error) {
     console.error('Error toggling save recipe:', error);
     res.status(500).json({ message: 'Server error saving recipe' });
@@ -194,6 +315,7 @@ exports.deleteRecipe = async (req, res) => {
     }
 
     await Recipe.findByIdAndDelete(id);
+    await User.updateMany({}, { $pull: { savedRecipes: id } });
     res.json({ message: 'Recipe deleted successfully' });
   } catch (error) {
     console.error('Error deleting recipe:', error);

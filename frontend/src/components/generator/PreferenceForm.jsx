@@ -40,7 +40,7 @@ export default function PreferenceForm() {
         {/* 1. Number of People */}
         <div className="col-12">
           <label className="form-label font-label fw-bold text-dark d-flex align-items-center gap-2 mb-2.5 text-sm">
-            <Users size={18} className="text-danger flex-shrink-0" />
+            <Users size={18} className="text-chef-orange flex-shrink-0" />
             <span>Number of People (Servings)</span>
           </label>
 
@@ -100,7 +100,7 @@ export default function PreferenceForm() {
         {/* 2. Spice Level */}
         <div className="col-md-6">
           <label className="form-label font-label fw-bold text-dark d-flex align-items-center gap-2 mb-2.5 text-sm">
-            <Flame size={18} className="text-danger flex-shrink-0" />
+            <Flame size={18} className="text-chef-orange flex-shrink-0" />
             <span>Spice Level</span>
           </label>
 
@@ -150,7 +150,7 @@ export default function PreferenceForm() {
         {/* 3. Cooking Method */}
         <div className="col-md-6">
           <label className="form-label font-label fw-bold text-dark d-flex align-items-center gap-2 mb-2.5 text-sm">
-            <Zap size={18} className="text-danger flex-shrink-0" />
+            <Zap size={18} className="text-chef-orange flex-shrink-0" />
             <span>Appliance / Cooking Method</span>
           </label>
 
@@ -162,9 +162,8 @@ export default function PreferenceForm() {
               return (
                 <div key={method.name} className="col-6">
                   <div
-                    className={`preference-card-option py-3 px-2 px-sm-3 rounded-4 text-center cursor-pointer transition-all h-100 d-flex flex-column align-items-center justify-content-between ${
-                      isSelected ? 'selected' : ''
-                    }`}
+                    className={`preference-card-option py-3 px-2 px-sm-3 rounded-4 text-center cursor-pointer transition-all h-100 d-flex flex-column align-items-center justify-content-between ${isSelected ? 'selected' : ''
+                      }`}
                     style={{
                       backgroundColor: isSelected ? 'rgba(234, 88, 12, 0.08)' : '#ffffff',
                       border: isSelected ? '2px solid #ea580c' : '1.5px solid #e2e8f0',
@@ -174,7 +173,7 @@ export default function PreferenceForm() {
                   >
                     <div className="d-flex flex-column align-items-center justify-content-center w-100 flex-grow-1 pt-1">
                       <div className="d-flex align-items-center justify-content-center mb-1.5" style={{ height: '26px' }}>
-                        <IconComp size={22} className={isSelected ? 'text-danger' : 'text-secondary'} />
+                        <IconComp size={22} className={isSelected ? 'text-chef-orange' : 'text-secondary'} />
                       </div>
                       <div className="fw-bold text-dark text-xs text-sm-sm">{method.name}</div>
                     </div>
