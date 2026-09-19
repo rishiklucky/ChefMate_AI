@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { GoogleLogin } from '@react-oauth/google';
 import { useAuth } from '../context/AuthContext';
 import { Flame, UserPlus, Lock, Mail, User, AlertCircle } from 'lucide-react';
 
 export default function RegisterPage() {
   const navigate = useNavigate();
-  const { register, loading, authError } = useAuth();
+  const { register, googleLogin, loading, authError } = useAuth();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -13,6 +14,13 @@ export default function RegisterPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const res = await register(name, email, password);
+    if (res.success) {
+      navigate('/');
+    }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    const res = await googleLogin(credentialResponse);
     if (res.success) {
       navigate('/');
     }
@@ -44,6 +52,27 @@ export default function RegisterPage() {
             <span className="fw-semibold">{authError}</span>
           </div>
         )}
+
+        {/* Google OAuth Section */}
+        <div className="d-flex flex-column align-items-center w-100 mb-3">
+          <div className="w-100 d-flex justify-content-center">
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={() => console.error('Google Sign-Up Failed')}
+              theme="outline"
+              size="large"
+              shape="pill"
+              text="signup_with"
+              width="100%"
+            />
+          </div>
+        </div>
+
+        <div className="d-flex align-items-center my-3">
+          <hr className="flex-grow-1 border-secondary opacity-25 my-0" />
+          <span className="px-2 text-muted text-xs fw-bold text-uppercase">OR</span>
+          <hr className="flex-grow-1 border-secondary opacity-25 my-0" />
+        </div>
 
         <form onSubmit={handleSubmit}>
           <div className="mb-3">

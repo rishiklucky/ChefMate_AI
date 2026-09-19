@@ -1,17 +1,25 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { GoogleLogin } from '@react-oauth/google';
 import { useAuth } from '../context/AuthContext';
 import { Flame, LogIn, Lock, Mail, AlertCircle } from 'lucide-react';
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const { login, loading, authError } = useAuth();
+  const { login, googleLogin, loading, authError } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const res = await login(email, password);
+    if (res.success) {
+      navigate('/');
+    }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    const res = await googleLogin(credentialResponse);
     if (res.success) {
       navigate('/');
     }
@@ -43,6 +51,27 @@ export default function LoginPage() {
             <span className="fw-semibold">{authError}</span>
           </div>
         )}
+
+        {/* Google OAuth Section */}
+        <div className="d-flex flex-column align-items-center w-100 mb-3">
+          <div className="w-100 d-flex justify-content-center">
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={() => console.error('Google Sign-In Failed')}
+              theme="outline"
+              size="large"
+              shape="pill"
+              text="continue_with"
+              width="100%"
+            />
+          </div>
+        </div>
+
+        <div className="d-flex align-items-center my-3">
+          <hr className="flex-grow-1 border-secondary opacity-25 my-0" />
+          <span className="px-2 text-muted text-xs fw-bold text-uppercase">OR</span>
+          <hr className="flex-grow-1 border-secondary opacity-25 my-0" />
+        </div>
 
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
@@ -89,7 +118,7 @@ export default function LoginPage() {
             ) : (
               <>
                 <LogIn size={18} />
-                <span>Sign In</span>
+                <span>Sign In with Email</span>
               </>
             )}
           </button>

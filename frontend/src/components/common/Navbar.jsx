@@ -134,9 +134,18 @@ export default function Navbar() {
                   }}
                 >
                   {isAuthenticated ? (
-                    <span className="fw-extrabold text-white text-sm font-display">
-                      {user?.name?.charAt(0).toUpperCase() || 'C'}
-                    </span>
+                    user?.avatar ? (
+                      <img
+                        src={user.avatar}
+                        alt={user?.name || 'User Avatar'}
+                        className="rounded-circle"
+                        style={{ width: 40, height: 40, objectFit: 'cover' }}
+                      />
+                    ) : (
+                      <span className="fw-extrabold text-white text-sm font-display">
+                        {user?.name?.charAt(0).toUpperCase() || 'C'}
+                      </span>
+                    )
                   ) : (
                     <User size={20} className="text-white" />
                   )}

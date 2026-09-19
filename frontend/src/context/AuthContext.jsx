@@ -50,6 +50,26 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const googleLogin = async (credentialResponse) => {
+    setLoading(true);
+    setAuthError(null);
+    try {
+      const idToken = typeof credentialResponse === 'string' 
+        ? credentialResponse 
+        : (credentialResponse.credential || credentialResponse.access_token);
+      const res = await API.post('/auth/google', { idToken });
+      setUser(res.data);
+      localStorage.setItem('chefmate_user', JSON.stringify(res.data));
+      setLoading(false);
+      return { success: true };
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Google authentication failed. Please try again.';
+      setAuthError(msg);
+      setLoading(false);
+      return { success: false, error: msg };
+    }
+  };
+
   const logout = () => {
     setUser(null);
     localStorage.removeItem('chefmate_user');
@@ -63,6 +83,7 @@ export const AuthProvider = ({ children }) => {
         authError,
         login,
         register,
+        googleLogin,
         logout,
         isAuthenticated: !!user,
       }}

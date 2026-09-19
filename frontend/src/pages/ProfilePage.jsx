@@ -14,14 +14,34 @@ export default function ProfilePage() {
         <div className="card-chefmate p-4 p-md-5 rounded-5 shadow-luxury mb-4">
           
           <div className="d-flex align-items-center gap-4 mb-4">
-            <div
-              className="rounded-circle text-white d-flex align-items-center justify-content-center font-display fw-extrabold display-6 shadow-md"
-              style={{ width: 76, height: 76, background: 'linear-gradient(135deg, #ea580c, #c2410c)' }}
-            >
-              {user?.name?.charAt(0).toUpperCase() || 'C'}
-            </div>
+            {user?.avatar ? (
+              <img
+                src={user.avatar}
+                alt={user?.name || 'Chef User'}
+                className="rounded-circle shadow-md border"
+                style={{ width: 76, height: 76, objectFit: 'cover', borderColor: 'rgba(234, 88, 12, 0.3)' }}
+              />
+            ) : (
+              <div
+                className="rounded-circle text-white d-flex align-items-center justify-content-center font-display fw-extrabold display-6 shadow-md"
+                style={{ width: 76, height: 76, background: 'linear-gradient(135deg, #ea580c, #c2410c)' }}
+              >
+                {user?.name?.charAt(0).toUpperCase() || 'C'}
+              </div>
+            )}
             <div>
-              <h3 className="font-display fw-bold text-dark m-0">{user?.name || 'Chef User'}</h3>
+              <div className="d-flex align-items-center gap-2">
+                <h3 className="font-display fw-bold text-dark m-0">{user?.name || 'Chef User'}</h3>
+                {user?.authProvider === 'google' ? (
+                  <span className="badge rounded-pill bg-danger-subtle text-danger border border-danger-subtle px-2.5 py-1 text-xs fw-bold">
+                    Google Auth
+                  </span>
+                ) : (
+                  <span className="badge rounded-pill bg-light text-secondary border px-2.5 py-1 text-xs fw-bold">
+                    Email Login
+                  </span>
+                )}
+              </div>
               <div className="text-muted text-sm d-flex align-items-center gap-1.5 mt-1">
                 <Mail size={15} className="text-danger" />
                 <span>{user?.email || 'chef@example.com'}</span>

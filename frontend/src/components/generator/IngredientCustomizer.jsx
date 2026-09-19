@@ -63,7 +63,7 @@ export default function IngredientCustomizer({ onGenerateClick }) {
           disabled={isGeneratingIngredients}
         >
           <RefreshCw size={14} className={isGeneratingIngredients ? 'animate-spin' : ''} style={{ color: '#ea580c' }} />
-          <span>Re-generate Draft</span>
+          <span>Generate Ingredients</span>
         </button>
       </div>
 
