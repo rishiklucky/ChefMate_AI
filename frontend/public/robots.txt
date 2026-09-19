@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://chefmate-ai-rh09.onrender.com/sitemap.xml
